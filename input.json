@@ -1,0 +1,160 @@
+{
+  "nodes": [
+    {
+      "id": 1,
+      "label": "u1",
+      "consumption": 5,
+      "type": "source",
+      "query_type": "filter"
+    },
+    {
+      "id": 2,
+      "label": "u2",
+      "consumption": 10,
+      "type": "none",
+      "query_type": "sequence"
+    },
+    {
+      "id": 3,
+      "label": "u3",
+      "consumption": 15,
+      "type": "sink",
+      "query_type": "pattern"
+    }
+  ],
+  "edges": [
+    {
+      "from": 0,
+      "to": 1,
+      "bandwidth": 10
+    },
+    {
+      "from": 0,
+      "to": 2,
+      "bandwidth": 10
+    },
+    {
+      "from": 1,
+      "to": 2,
+      "bandwidth": 10
+    }
+  ],
+  "resources": [
+    {
+      "id": 1,
+      "label": "r1",
+      "placement": "cloud",
+      "type": "sink",
+      "capacity": 10,
+      "location": "l1",
+      "costs": {
+        "filter": 1,
+        "sequence": 2,
+        "pattern": 3,
+        "batch_aggregate": 4,
+        "sliding_aggregate": 5
+      }
+    },
+    {
+      "id": 2,
+      "label": "r2",
+      "placement": "cloud",
+      "type": "none",
+      "capacity": 20,
+      "location": "l2",
+      "costs": {
+        "filter": 2,
+        "sequence": 3,
+        "pattern": 4,
+        "batch_aggregate": 5,
+        "sliding_aggregate": 6
+      }
+    },
+    {
+      "id": 3,
+      "label": "r3",
+      "placement": "edge",
+      "type": "none",
+      "capacity": 5,
+      "location": "l3",
+      "costs": {
+        "filter": 3,
+        "sequence": 4,
+        "pattern": 5,
+        "batch_aggregate": 6,
+        "sliding_aggregate": 7
+      }
+    },
+    {
+      "id": 4,
+      "label": "r4",
+      "placement": "edge",
+      "type": "source",
+      "capacity": 40,
+      "location": "l4",
+      "costs": {
+        "filter": 4,
+        "sequence": 5,
+        "pattern": 6,
+        "batch_aggregate": 7,
+        "sliding_aggregate": 8
+      }
+    }
+  ],
+  "links": [
+    {
+      "from": 0,
+      "to": 1,
+      "bandwidth": 10,
+      "latency": 2,
+      "bidirectional": true
+    },
+    {
+      "from": 0,
+      "to": 2,
+      "bandwidth": 2,
+      "latency": 5,
+      "bidirectional": true
+    },
+    {
+      "from": 0,
+      "to": 3,
+      "bandwidth": 6.25,
+      "latency": 10,
+      "bidirectional": true
+    },
+    {
+      "from": 1,
+      "to": 2,
+      "bandwidth": 5,
+      "latency": 7,
+      "bidirectional": true
+    },
+    {
+      "from": 1,
+      "to": 3,
+      "bandwidth": 7.14,
+      "latency": 8,
+      "bidirectional": true
+    },
+    {
+      "from": 2,
+      "to": 3,
+      "bandwidth": 20,
+      "latency": 4,
+      "bidirectional": false
+    },
+    {
+      "from": 3,
+      "to": 2,
+      "bandwidth": 20,
+      "latency": 4,
+      "bidirectional": false
+    }
+  ],
+  "costs": {
+    "cloud_edge": 20,
+    "cloud_cloud": 10,
+    "edge_edge": 5
+  }
+}
