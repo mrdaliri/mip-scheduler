@@ -59,12 +59,24 @@ public class Resource {
         this.location = location;
     }
 
+    public boolean isAtSameLocation(Resource other) {
+        return location.equals(other.getLocation());
+    }
+
     public HashMap<QueryType, Double> getCosts() {
         return costs;
+    }
+
+    public Double getCost(QueryType type) {
+        return costs.get(type);
     }
 
     public void setCosts(HashMap<QueryType, Double> costs) {
         this.costs = costs;
     }
 
+    @Override
+    public String toString() {
+        return String.format("Resource#%d (%s)", id, label);
+    }
 }

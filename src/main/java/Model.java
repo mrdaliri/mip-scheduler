@@ -17,25 +17,22 @@ import java.util.Map;
  */
 
 public class Model {
-    private DirectedGraph<Node, String> instance;
-    private int capacity;
+    private Input instance;
 
     private IloCplex cplex;
 
-    private Map<Node, IloNumVar> varMap;
+    private Map<Node, Map<Resource, IloNumVar>> varMap;
 
     /**
      * Constructor that takes a directed graph with the items and precedence constraints
      *
      * @param instance a directed graph with items
-     * @param capacity the capacity of the knapsack
      * @throws IloException if something goes wrong with CPLEX
      */
 
-    public Model(DirectedGraph<Node, String> instance, int capacity) throws IloException {
+    public Model(Input instance) throws IloException {
         // Initialize the instance variables
         this.instance = instance;
-        this.capacity = capacity;
         this.cplex = new IloCplex();
 
         // Create a map to link items to variables
@@ -43,8 +40,9 @@ public class Model {
 
         // Initialize the model. It is important to initialize the variables first!
         addVariables();
-        addKnapsackConstraint();
-        addPrecedenceConstraints();
+        addCapacityConstraint();
+        addAllocationConstraint();
+        addTypePlacementConstraint();
         addObjective();
 
         // Optionally: export the model to a file, so we can check the mathematical
@@ -54,25 +52,6 @@ public class Model {
         cplex.setOut(null);
     }
 
-    /**
-     * Disable an item in the model (fix it to 0) or enable it (either 0 or 1)
-     *
-     * @param i       the item to manipulate
-     * @param enabled whether to enable it (0 or 1) or disable it (always 0)
-     * @throws IloException if something is wrong with CPLEX
-     */
-    public void setItem(Node i, boolean enabled) throws IloException {
-        IloNumVar var = varMap.get(i);
-        if (enabled) {
-            // If it is enabled, the lower bound is 0 and the upper bound is 1
-            var.setLB(0);
-            var.setUB(1);
-        } else {
-            // If it is disabled, both lower and upper bound are set to 0
-            var.setLB(0);
-            var.setUB(0);
-        }
-    }
 
     /**
      * Solve the Mathematical Programming Model
@@ -100,13 +79,16 @@ public class Model {
      * @return a list of selected items
      * @throws IloException if something is wrong with CPLEX
      */
-    public List<Node> getSolution() throws IloException {
-        List<Node> result = new ArrayList<>();
-        for (Node i : instance.getNodes()) {
-            IloNumVar var = varMap.get(i);
-            double value = cplex.getValue(var);
-            if (value >= 0.5) {
-                result.add(i);
+    public Map<Node, Resource> getSolution() throws IloException {
+        Map<Node, Resource> result = new HashMap<>();
+        for (Node node : instance.getNodesGraph().getNodes()) {
+            for (Resource resource : instance.getResourcesGraph().getNodes()) {
+                IloNumVar var = varMap.get(node).get(resource);
+                double value = cplex.getValue(var);
+                if (value >= 0.5) {
+                    result.put(node, resource);
+                    break;
+                }
             }
         }
         return result;
@@ -125,45 +107,126 @@ public class Model {
     }
 
     private void addObjective() throws IloException {
-        // Initialize the objective sum to 0
-        IloNumExpr obj = cplex.constant(0);
-        for (Node i : instance.getNodes()) {
-            IloNumVar var = varMap.get(i);
-            // Take the product of the decision variable and the profit of the item
-            IloNumExpr term = cplex.prod(var, i.getConsumption());
-            // Add the term to the current sum
-            obj = cplex.sum(obj, term);
+        IloNumExpr executionCost = cplex.constant(0);
+        for (Node i : instance.getNodesGraph().getNodes()) {
+            for (Resource j : instance.getResourcesGraph().getNodes()) {
+                IloNumVar var = varMap.get(i).get(j);
+                IloNumExpr term = cplex.prod(var, j.getCost(i.getQueryType()));
+                executionCost = cplex.sum(executionCost, term);
+            }
         }
-        // Add the obj expression as a maximization objective
-        cplex.addMaximize(obj);
+
+        IloNumExpr communicationCost = cplex.constant(0);
+        for (DirectedGraphArc<Node, EdgeProperty> edge : instance.getNodesGraph().getArcs()) {
+            for (DirectedGraphArc<Resource, LinkProperty> link : instance.getResourcesGraph().getArcs()) {
+                if (link.getFrom().isAtSameLocation(link.getTo())) {
+                    continue;
+                }
+                IloNumVar varIK = varMap.get(edge.getFrom()).get(link.getFrom());
+                IloNumVar varJT = varMap.get(edge.getTo()).get(link.getTo());
+
+                IloNumExpr term = cplex.prod(varIK, varJT);
+                double x = link.getData().getLatency();
+                double cost;
+                if (link.getFrom().getPlacement() == link.getTo().getPlacement()) {
+                    if (link.getFrom().getPlacement() == Placement.CLOUD) {
+                        cost = instance.getCost().getCloudCloud();
+                    } else {
+                        cost = instance.getCost().getEdgeEdge();
+                    }
+                } else {
+                    cost = instance.getCost().getCloudEdge();
+                }
+                x += cost * edge.getData().getBandwidth() / link.getData().getBandwidth();
+                term = cplex.prod(term, x);
+
+                communicationCost = cplex.sum(executionCost, term);
+            }
+        }
+        /*
+        sum(i in nodes, j in nodes, k in resources, t in resources)
+        x[i][k]*x[j][t]*(edgeData[i][j] * diffhost[k][t])* (latency[k][t] +
+                                    e1[k][t] * edgeCloudCost * d[i][j]* invertedbandwidth[k][t]+
+                                e2[k][t] * edgeCost * d[i][j]*invertedbandwidth[k][t]+
+                                    e3[k][t] * cloudCost * d[i][j]*invertedbandwidth[k][t]);
+         */
+        cplex.addMinimize(cplex.sum(executionCost, communicationCost));
     }
 
-    private void addPrecedenceConstraints() throws IloException {
-        for (DirectedGraphArc<Node, String> arc : instance.getArcs()) {
-            IloNumVar from = varMap.get(arc.getFrom());
-            IloNumVar to = varMap.get(arc.getTo());
-            cplex.addLe(from, to);
+    private void addCapacityConstraint() throws IloException {
+        for (Resource resource : instance.getResourcesGraph().getNodes()) {
+            IloNumExpr lhs = cplex.constant(0);
+            for (Node node : instance.getNodesGraph().getNodes()) {
+                IloNumVar var = varMap.get(node).get(resource);
+                lhs = cplex.sum(lhs, cplex.prod(var, node.getConsumption()));
+            }
+            cplex.addLe(lhs, resource.getCapacity());
         }
+        /*
+        forall(j in resources){
+            capacity_constraint:
+                sum(i in nodes) x[i][j]*nodesData[i].nodeCapacity <= resourcesData[j].resourceCapacity;
+        }
+         */
     }
 
-    private void addKnapsackConstraint() throws IloException {
-        // Initialize the left-hand side of our constraint to 0
-        IloNumExpr lhs = cplex.constant(0);
-        for (Node i : instance.getNodes()) {
-            IloNumVar var = varMap.get(i);
-            // Take the product of the decision variable and the item weight
-            IloNumExpr term = cplex.prod(i.getConsumption(), var);
-            // Add the term to the left hand side summation
-            lhs = cplex.sum(lhs, term);
+    private void addAllocationConstraint() throws IloException {
+        for (Node node : instance.getNodesGraph().getNodes()) {
+            IloNumExpr lhs = cplex.constant(0);
+            for (Resource resource : instance.getResourcesGraph().getNodes()) {
+                IloNumVar var = varMap.get(node).get(resource);
+                lhs = cplex.sum(lhs, var);
+            }
+            cplex.addEq(lhs, 1);
         }
-        // Add the constraint lhs <= capacity to the model
-        cplex.addLe(lhs, capacity);
+        /*
+        forall (i in nodes){
+            allocation_resources:
+                sum(j in resources) x[i][j] == 1;
+        }
+         */
+    }
+
+    private void addTypePlacementConstraint() throws IloException {
+        for (Node node : instance.getNodesGraph().getNodes()) {
+            for (Resource resource : instance.getResourcesGraph().getNodes()) {
+                IloNumVar var = varMap.get(node).get(resource);
+                if ((node.getType() == Type.SOURCE && resource.getPlacement() != Placement.EDGE)
+                                || (node.getType() == Type.SINK && resource.getPlacement() != Placement.CLOUD)) {
+                    var.setLB(0);
+                    var.setUB(0);
+                }
+            }
+        }
+
+        /*
+        //source sink
+        forall(i in nodes){
+          source_sink:
+          forall(t in resources){
+            if(nodesData[i].type == 0){ // if the node is source it must be on the edge resource
+                if(resourcesData[t].placement != 1){
+                 x[i][t] == 0;
+               }
+            }
+            else if(nodesData[i].type == 1){ // if the node is sink it must be on the cloud
+                if(resourcesData[t].placement != 0){
+                 x[i][t] == 0;
+                }
+            }
+          }
+        }
+         */
     }
 
     private void addVariables() throws IloException {
-        for (Node i : instance.getNodes()) {
-            IloNumVar var = cplex.boolVar();
-            varMap.put(i, var);
+        for (Node i : instance.getNodesGraph().getNodes()) {
+            Map<Resource, IloNumVar> resourceVariables = new HashMap<>();
+            for (Resource j : instance.getResourcesGraph().getNodes()) {
+                IloNumVar var = cplex.boolVar();
+                resourceVariables.put(j, var);
+            }
+            varMap.put(i, resourceVariables);
         }
     }
 

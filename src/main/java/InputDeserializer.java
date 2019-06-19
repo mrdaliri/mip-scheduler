@@ -23,6 +23,7 @@ class InputDeserializer implements JsonDeserializer<Input> {
             double bandwidth = edgeObject.get("bandwidth").getAsDouble();
 
             input.getNodesGraph().addArc(nodes.get(fromId), nodes.get(toId), new EdgeProperty(bandwidth));
+            input.getNodesGraph().addArc(nodes.get(toId), nodes.get(fromId), new EdgeProperty(bandwidth));
         }
 
         ArrayList<Resource> resources = new ArrayList<>();

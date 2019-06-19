@@ -51,4 +51,8 @@ public class Node {
         this.queryType = queryType;
     }
 
+    @Override
+    public String toString() {
+        return String.format("Node#%d (%s)", id, label);
+    }
 }
