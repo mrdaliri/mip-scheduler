@@ -10,7 +10,7 @@ import java.util.ArrayList;
 public class Main {
     public static void main(String[] args) {
         try {
-            Input input = read("input.json");
+            Input input = read("samples/problem_1.json");
             Model model = new Model(input);
             model.solve();
             System.out.println(model.getSolution());
