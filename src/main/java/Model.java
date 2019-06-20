@@ -116,6 +116,10 @@ public class Model {
             }
         }
 
+        /*
+        sum(i in nodes, j in resources) x[i][j]*executionCost[j][nodesData[i].qtype];
+         */
+
         IloNumExpr communicationCost = cplex.constant(0);
         for (DirectedGraphArc<Node, EdgeProperty> edge : instance.getNodesGraph().getArcs()) {
             for (DirectedGraphArc<Resource, LinkProperty> link : instance.getResourcesGraph().getArcs()) {
@@ -140,6 +144,7 @@ public class Model {
                 communicationCost = cplex.sum(communicationCost, term);
             }
         }
+
         /*
         sum(i in nodes, j in nodes, k in resources, t in resources)
         x[i][k]*x[j][t]*(edgeData[i][j] * diffhost[k][t])* (latency[k][t] +
@@ -147,6 +152,7 @@ public class Model {
                                 e2[k][t] * edgeCost * d[i][j]*invertedbandwidth[k][t]+
                                     e3[k][t] * cloudCost * d[i][j]*invertedbandwidth[k][t]);
          */
+
         cplex.addMinimize(cplex.sum(executionCost, communicationCost));
     }
 
@@ -159,6 +165,7 @@ public class Model {
             }
             cplex.addLe(lhs, resource.getCapacity(), String.format("capacity_constraint(\"%s\")", resource.getLabel()));
         }
+
         /*
         forall(j in resources){
             capacity_constraint:
@@ -176,6 +183,7 @@ public class Model {
             }
             cplex.addEq(lhs, 1, String.format("allocation_resources(\"%s\")", node.getLabel()));
         }
+
         /*
         forall (i in nodes){
             allocation_resources:
@@ -192,7 +200,6 @@ public class Model {
                                 || (node.getType() == Type.SINK && resource.getPlacement() != Placement.CLOUD)) {
                     var.setLB(0);
                     var.setUB(0);
-//                    cplex.addEq(var, 0);
                 }
             }
         }
