@@ -119,9 +119,6 @@ public class Model {
         IloNumExpr communicationCost = cplex.constant(0);
         for (DirectedGraphArc<Node, EdgeProperty> edge : instance.getNodesGraph().getArcs()) {
             for (DirectedGraphArc<Resource, LinkProperty> link : instance.getResourcesGraph().getArcs()) {
-                if (link.getFrom().isAtSameLocation(link.getTo())) {
-                    continue;
-                }
                 IloNumVar varIK = varMap.get(edge.getFrom()).get(link.getFrom());
                 IloNumVar varJT = varMap.get(edge.getTo()).get(link.getTo());
 

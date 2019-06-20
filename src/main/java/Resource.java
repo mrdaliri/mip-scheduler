@@ -6,7 +6,6 @@ public class Resource {
     private int capacity;
     private Placement placement;
     private Type type;
-    private String location;
     private HashMap<QueryType, Double> costs = new HashMap<>();
 
     public Resource() { }
@@ -49,18 +48,6 @@ public class Resource {
 
     public void setType(Type type) {
         this.type = type;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public boolean isAtSameLocation(Resource other) {
-        return location.equals(other.getLocation());
     }
 
     public HashMap<QueryType, Double> getCosts() {

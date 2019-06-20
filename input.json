@@ -46,7 +46,6 @@
       "placement": "cloud",
       "type": "sink",
       "capacity": 10,
-      "location": "l1",
       "costs": {
         "filter": 1,
         "sequence": 2,
@@ -61,7 +60,6 @@
       "placement": "cloud",
       "type": "none",
       "capacity": 20,
-      "location": "l2",
       "costs": {
         "filter": 2,
         "sequence": 3,
@@ -76,7 +74,6 @@
       "placement": "edge",
       "type": "none",
       "capacity": 5,
-      "location": "l3",
       "costs": {
         "filter": 3,
         "sequence": 4,
