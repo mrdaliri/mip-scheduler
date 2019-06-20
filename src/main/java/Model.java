@@ -14,6 +14,7 @@ import java.util.Map;
  * model managed by CPLEX.
  *
  * @author Paul Bouman
+ * @author Mohammad-Reza Daliri
  */
 
 public class Model {
