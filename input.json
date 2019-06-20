@@ -5,21 +5,21 @@
       "label": "u1",
       "consumption": 5,
       "type": "source",
-      "query_type": "filter"
+      "query_type": "sequence"
     },
     {
       "id": 2,
       "label": "u2",
       "consumption": 10,
       "type": "none",
-      "query_type": "sequence"
+      "query_type": "pattern"
     },
     {
       "id": 3,
       "label": "u3",
       "consumption": 15,
       "type": "sink",
-      "query_type": "pattern"
+      "query_type": "batch_aggregate"
     }
   ],
   "edges": [
