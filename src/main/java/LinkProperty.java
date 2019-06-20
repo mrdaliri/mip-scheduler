@@ -10,6 +10,10 @@ public class LinkProperty extends EdgeProperty {
         return latency;
     }
 
+    public double getNormalizedLatency(double max) {
+        return latency / max;
+    }
+
     public boolean canEqual(Object other) {
         return (other instanceof LinkProperty);
     }

@@ -121,6 +121,14 @@ public class Model {
         sum(i in nodes, j in resources) x[i][j]*executionCost[j][nodesData[i].qtype];
          */
 
+        double maxLatency = 0;
+        for (DirectedGraphArc<Resource, LinkProperty> link : instance.getResourcesGraph().getArcs()) {
+            double linkLatency = link.getData().getLatency();
+            if (linkLatency > maxLatency) {
+                maxLatency = linkLatency;
+            }
+        }
+
         IloNumExpr communicationCost = cplex.constant(0);
         for (DirectedGraphArc<Node, EdgeProperty> edge : instance.getNodesGraph().getArcs()) {
             for (DirectedGraphArc<Resource, LinkProperty> link : instance.getResourcesGraph().getArcs()) {
@@ -128,16 +136,16 @@ public class Model {
                 IloNumVar varJT = varMap.get(edge.getTo()).get(link.getTo());
 
                 IloNumExpr term = cplex.prod(varIK, varJT);
-                double x = link.getData().getLatency();
+                double x = link.getData().getNormalizedLatency(maxLatency);
                 double cost;
                 if (link.getFrom().getPlacement() == link.getTo().getPlacement()) {
                     if (link.getFrom().getPlacement() == Placement.CLOUD) {
-                        cost = instance.getCost().getCloudCloud();
+                        cost = instance.getCost().getNormalizedCloudCloud();
                     } else {
-                        cost = instance.getCost().getEdgeEdge();
+                        cost = instance.getCost().getNormalizedEdgeEdge();
                     }
                 } else {
-                    cost = instance.getCost().getCloudEdge();
+                    cost = instance.getCost().getNormalizedCloudEdge();
                 }
                 x += cost * edge.getData().getBandwidth() / link.getData().getBandwidth();
                 term = cplex.prod(term, x);
