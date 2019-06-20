@@ -137,7 +137,7 @@ public class Model {
                 x += cost * edge.getData().getBandwidth() / link.getData().getBandwidth();
                 term = cplex.prod(term, x);
 
-                communicationCost = cplex.sum(executionCost, term);
+                communicationCost = cplex.sum(communicationCost, term);
             }
         }
         /*
@@ -190,9 +190,9 @@ public class Model {
                 IloNumVar var = varMap.get(node).get(resource);
                 if ((node.getType() == Type.SOURCE && resource.getPlacement() != Placement.EDGE)
                                 || (node.getType() == Type.SINK && resource.getPlacement() != Placement.CLOUD)) {
-//                    var.setLB(0);
-//                    var.setUB(0);
-                    cplex.addEq(var, 0);
+                    var.setLB(0);
+                    var.setUB(0);
+//                    cplex.addEq(var, 0);
                 }
             }
         }
