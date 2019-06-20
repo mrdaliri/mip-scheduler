@@ -160,7 +160,7 @@ public class Model {
                 IloNumVar var = varMap.get(node).get(resource);
                 lhs = cplex.sum(lhs, cplex.prod(var, node.getConsumption()));
             }
-            cplex.addLe(lhs, resource.getCapacity());
+            cplex.addLe(lhs, resource.getCapacity(), String.format("capacity_constraint(\"%s\")", resource.getLabel()));
         }
         /*
         forall(j in resources){
@@ -177,7 +177,7 @@ public class Model {
                 IloNumVar var = varMap.get(node).get(resource);
                 lhs = cplex.sum(lhs, var);
             }
-            cplex.addEq(lhs, 1);
+            cplex.addEq(lhs, 1, String.format("allocation_resources(\"%s\")", node.getLabel()));
         }
         /*
         forall (i in nodes){
@@ -193,8 +193,9 @@ public class Model {
                 IloNumVar var = varMap.get(node).get(resource);
                 if ((node.getType() == Type.SOURCE && resource.getPlacement() != Placement.EDGE)
                                 || (node.getType() == Type.SINK && resource.getPlacement() != Placement.CLOUD)) {
-                    var.setLB(0);
-                    var.setUB(0);
+//                    var.setLB(0);
+//                    var.setUB(0);
+                    cplex.addEq(var, 0);
                 }
             }
         }
@@ -223,7 +224,7 @@ public class Model {
         for (Node i : instance.getNodesGraph().getNodes()) {
             Map<Resource, IloNumVar> resourceVariables = new HashMap<>();
             for (Resource j : instance.getResourcesGraph().getNodes()) {
-                IloNumVar var = cplex.boolVar();
+                IloNumVar var = cplex.boolVar(String.format("x(\"%s\")(\"%s\")", i.getLabel(), j.getLabel()));
                 resourceVariables.put(j, var);
             }
             varMap.put(i, resourceVariables);
