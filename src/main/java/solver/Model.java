@@ -1,15 +1,15 @@
+package solver;
+
 import ilog.concert.IloException;
 import ilog.concert.IloNumExpr;
 import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
- * Model class that converts a directed graph representing a
+ * solver.Model class that converts a directed graph representing a
  * precedence constrained knapsack problem into a mathematical programming
  * model managed by CPLEX.
  *
@@ -18,7 +18,7 @@ import java.util.Map;
  */
 
 public class Model {
-    private Input instance;
+    private Problem instance;
 
     private IloCplex cplex;
 
@@ -31,7 +31,7 @@ public class Model {
      * @throws IloException if something goes wrong with CPLEX
      */
 
-    public Model(Input instance) throws IloException {
+    public Model(Problem instance) throws IloException {
         // Initialize the instance variables
         this.instance = instance;
         this.cplex = new IloCplex();
@@ -55,7 +55,7 @@ public class Model {
 
 
     /**
-     * Solve the Mathematical Programming Model
+     * Solve the Mathematical Programming solver.Model
      *
      * @throws IloException if something is wrong with CPLEX
      */
