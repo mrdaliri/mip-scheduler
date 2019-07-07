@@ -1,4 +1,6 @@
-import com.google.gson.annotations.SerializedName;
+package solver;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Node {
     private int id;
@@ -6,7 +8,7 @@ public class Node {
     private int consumption;
     private Type type;
 
-    @SerializedName("query_type")
+    @JsonProperty("query_type")
     private QueryType queryType;
 
     public Node() { }
@@ -53,6 +55,6 @@ public class Node {
 
     @Override
     public String toString() {
-        return String.format("Node#%d (%s)", id, label);
+        return String.format("solver.Node#%d (%s)", id, label);
     }
 }

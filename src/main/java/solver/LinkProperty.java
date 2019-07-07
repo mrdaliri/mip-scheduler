@@ -1,3 +1,5 @@
+package solver;
+
 public class LinkProperty extends EdgeProperty {
     private final double latency;
 

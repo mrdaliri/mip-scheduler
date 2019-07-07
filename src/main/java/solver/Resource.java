@@ -1,3 +1,5 @@
+package solver;
+
 import java.util.HashMap;
 
 public class Resource {
@@ -64,6 +66,6 @@ public class Resource {
 
     @Override
     public String toString() {
-        return String.format("Resource#%d (%s)", id, label);
+        return String.format("solver.Resource#%d (%s)", id, label);
     }
 }

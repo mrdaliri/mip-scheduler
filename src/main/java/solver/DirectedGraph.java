@@ -1,3 +1,5 @@
+package solver;
+
 import java.util.*;
 
 /**
@@ -190,7 +192,7 @@ public class DirectedGraph<V, A> {
 
     @Override
     public String toString() {
-        return "DirectedGraph [nodes=" + nodes + ", arcs=" + arcs + "]";
+        return "solver.DirectedGraph [nodes=" + nodes + ", arcs=" + arcs + "]";
     }
 
 }

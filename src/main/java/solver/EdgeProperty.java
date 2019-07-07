@@ -1,3 +1,5 @@
+package solver;
+
 public class EdgeProperty {
     private final double bandwidth;
 

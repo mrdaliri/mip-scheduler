@@ -88,7 +88,6 @@
       "placement": "edge",
       "type": "source",
       "capacity": 40,
-      "location": "l4",
       "costs": {
         "filter": 4,
         "sequence": 5,

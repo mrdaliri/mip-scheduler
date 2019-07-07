@@ -1,13 +1,15 @@
-import com.google.gson.annotations.SerializedName;
+package solver;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class CommunicationCost {
-    @SerializedName("cloud_cloud")
+    @JsonProperty("cloud_cloud")
     private int cloudCloud;
 
-    @SerializedName("cloud_edge")
+    @JsonProperty("cloud_edge")
     private int cloudEdge;
 
-    @SerializedName("edge_edge")
+    @JsonProperty("edge_edge")
     private int edgeEdge;
 
     public CommunicationCost() { }
