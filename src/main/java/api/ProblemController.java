@@ -1,8 +1,10 @@
 package api;
 
 import ilog.concert.IloException;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
+import org.springframework.web.server.ResponseStatusException;
 import solver.Model;
 import solver.Node;
 import solver.Problem;
@@ -21,7 +23,11 @@ public class ProblemController {
             try {
                 Model model = new Model(input);
                 model.solve();
-                output.setResult(model.getSolution());
+                if (model.isFeasible()) {
+                    output.setResult(model.getSolution());
+                } else {
+                    output.setErrorResult(new ResponseStatusException(HttpStatus.NOT_FOUND, "Failed to found a solution."));
+                }
             } catch (IloException e) {
                 e.printStackTrace();
             }
