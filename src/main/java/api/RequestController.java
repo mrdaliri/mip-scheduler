@@ -16,7 +16,7 @@ public class RequestController {
     RequestRepository repository;
 
     @PostMapping("/solve")
-    public Request createRequst(@RequestBody Problem input) throws IloException {
+    public Request createRequest(@RequestBody Problem input) throws IloException {
         Request request = new Request();
         request.setProblem(input);
         Model model = new Model(input);
@@ -24,7 +24,6 @@ public class RequestController {
         request.setSolution(model.getSolution());
         repository.save(request);
         return request;
-//        return model.getSolution().toString();
     }
 
     @GetMapping("/solution/{id}")
