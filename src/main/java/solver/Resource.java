@@ -7,7 +7,6 @@ public class Resource {
     private String label;
     private int capacity;
     private Placement placement;
-    private Type type;
     private HashMap<QueryType, Double> costs = new HashMap<>();
 
     public Resource() { }
@@ -42,14 +41,6 @@ public class Resource {
 
     public void setPlacement(Placement placement) {
         this.placement = placement;
-    }
-
-    public Type getType() {
-        return type;
-    }
-
-    public void setType(Type type) {
-        this.type = type;
     }
 
     public HashMap<QueryType, Double> getCosts() {

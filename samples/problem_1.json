@@ -58,7 +58,6 @@
       "id": 2,
       "label": "r2",
       "placement": "cloud",
-      "type": "none",
       "capacity": 20,
       "costs": {
         "filter": 2,
@@ -72,7 +71,6 @@
       "id": 3,
       "label": "r3",
       "placement": "edge",
-      "type": "none",
       "capacity": 5,
       "costs": {
         "filter": 3,
@@ -86,7 +84,6 @@
       "id": 4,
       "label": "r4",
       "placement": "edge",
-      "type": "source",
       "capacity": 40,
       "costs": {
         "filter": 4,

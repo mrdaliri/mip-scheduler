@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 class ProblemDeserializer extends StdDeserializer<Problem> {
     public ProblemDeserializer() {
@@ -30,39 +31,41 @@ class ProblemDeserializer extends StdDeserializer<Problem> {
 
         JsonParser nodesJSON = root.get("nodes").traverse(jp.getCodec());
         nodesJSON.nextToken();
-        ArrayList<Node> nodes = new ArrayList<>(Arrays.asList(ctxt.readValue(nodesJSON, Node[].class)));
-        for (Node node : nodes) {
+        HashMap<Integer, Node> nodes = new HashMap<>();
+        for (Node node : ctxt.readValue(nodesJSON, Node[].class)) {
+            nodes.put(node.getId(), node);
             problem.getNodesGraph().addNode(node);
         }
 
         JsonNode edgesArray = root.get("edges");
         for (final JsonNode edge : edgesArray) {
-            int fromId = edge.get("from").asInt();
-            int toId = edge.get("to").asInt();
+            int sourceId = edge.get("source").asInt();
+            int targetId = edge.get("target").asInt();
             double bandwidth = edge.get("bandwidth").asDouble();
 
-            problem.getNodesGraph().addArc(nodes.get(fromId), nodes.get(toId), new EdgeProperty(bandwidth));
-            problem.getNodesGraph().addArc(nodes.get(toId), nodes.get(fromId), new EdgeProperty(bandwidth));
+            problem.getNodesGraph().addArc(nodes.get(sourceId), nodes.get(targetId), new EdgeProperty(bandwidth));
+            problem.getNodesGraph().addArc(nodes.get(targetId), nodes.get(sourceId), new EdgeProperty(bandwidth));
         }
 
         JsonParser resourcesJSON = root.get("resources").traverse(jp.getCodec());
         resourcesJSON.nextToken();
-        ArrayList<Resource> resources = new ArrayList<>(Arrays.asList(ctxt.readValue(resourcesJSON, Resource[].class)));
-        for (Resource resource : resources) {
+        HashMap<Integer, Resource> resources = new HashMap<>();
+        for (Resource resource : ctxt.readValue(resourcesJSON, Resource[].class)) {
+            resources.put(resource.getId(), resource);
             problem.getResourcesGraph().addNode(resource);
         }
 
         JsonNode linksArray = root.get("links");
         for (final JsonNode link : linksArray) {
-            int fromId = link.get("from").asInt();
-            int toId = link.get("to").asInt();
+            int sourceId = link.get("source").asInt();
+            int targetId = link.get("target").asInt();
             double bandwidth = link.get("bandwidth").asDouble();
             double latency = link.get("latency").asDouble();
             boolean isBidirectional = link.get("bidirectional").asBoolean();
 
-            problem.getResourcesGraph().addArc(resources.get(fromId), resources.get(toId), new LinkProperty(bandwidth, latency));
+            problem.getResourcesGraph().addArc(resources.get(sourceId), resources.get(targetId), new LinkProperty(bandwidth, latency));
             if (isBidirectional) {
-                problem.getResourcesGraph().addArc(resources.get(toId), resources.get(fromId), new LinkProperty(bandwidth, latency));
+                problem.getResourcesGraph().addArc(resources.get(targetId), resources.get(sourceId), new LinkProperty(bandwidth, latency));
             }
         }
 
