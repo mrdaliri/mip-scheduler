@@ -55,6 +55,6 @@ public class Node {
 
     @Override
     public String toString() {
-        return String.format("solver.Node#%d (%s)", id, label);
+        return String.format("Node#%d (%s)", id, label);
     }
 }

@@ -57,6 +57,6 @@ public class Resource {
 
     @Override
     public String toString() {
-        return String.format("solver.Resource#%d (%s)", id, label);
+        return String.format("Resource#%d (%s)", id, label);
     }
 }

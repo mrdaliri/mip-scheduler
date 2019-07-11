@@ -10,6 +10,8 @@ import solver.Node;
 import solver.Problem;
 import solver.Resource;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ForkJoinPool;
 
@@ -17,15 +19,21 @@ import java.util.concurrent.ForkJoinPool;
 @CrossOrigin(origins = "*")
 public class ProblemController {
     @PostMapping(value = "/solve")
-    public DeferredResult<Map<Node, Resource>> Solve(@RequestBody Problem input) throws IloException {
-        DeferredResult<Map<Node, Resource>> output = new DeferredResult<>();
+    public DeferredResult<List<ResourceAllocation>> Solve(@RequestBody Problem input) throws IloException {
+        DeferredResult<List<ResourceAllocation>> output = new DeferredResult<>();
 
         ForkJoinPool.commonPool().submit(() -> {
             try {
                 Model model = new Model(input);
+                long startTime = System.currentTimeMillis();
                 model.solve();
                 if (model.isFeasible()) {
-                    output.setResult(model.getSolution());
+                    Map<Node, Resource> modelSolution = model.getSolution();
+                    List<ResourceAllocation> allocationList = new ArrayList<>();
+                    for (Map.Entry<Node, Resource> entry : modelSolution.entrySet()) {
+                        allocationList.add(new ResourceAllocation(entry.getKey(), entry.getValue()));
+                    }
+                    output.setResult(allocationList);
                 } else {
                     output.setErrorResult(new ResponseStatusException(HttpStatus.NOT_FOUND, "Failed to found a solution."));
                 }
