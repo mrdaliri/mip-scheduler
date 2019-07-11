@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.concurrent.ForkJoinPool;
 
 @RestController
+@CrossOrigin(origins = "*")
 public class ProblemController {
     @PostMapping(value = "/solve")
     public DeferredResult<Map<Node, Resource>> Solve(@RequestBody Problem input) throws IloException {
