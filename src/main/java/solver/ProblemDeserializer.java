@@ -31,7 +31,7 @@ class ProblemDeserializer extends StdDeserializer<Problem> {
 
         JsonParser nodesJSON = root.get("nodes").traverse(jp.getCodec());
         nodesJSON.nextToken();
-        HashMap<Integer, Node> nodes = new HashMap<>();
+        HashMap<String, Node> nodes = new HashMap<>();
         for (Node node : ctxt.readValue(nodesJSON, Node[].class)) {
             nodes.put(node.getId(), node);
             problem.getNodesGraph().addNode(node);
@@ -39,8 +39,8 @@ class ProblemDeserializer extends StdDeserializer<Problem> {
 
         JsonNode edgesArray = root.get("edges");
         for (final JsonNode edge : edgesArray) {
-            int sourceId = edge.get("source").asInt();
-            int targetId = edge.get("target").asInt();
+            String sourceId = edge.get("source").asText();
+            String targetId = edge.get("target").asText();
             double bandwidth = edge.get("bandwidth").asDouble();
 
             problem.getNodesGraph().addArc(nodes.get(sourceId), nodes.get(targetId), new EdgeProperty(bandwidth));
@@ -49,7 +49,7 @@ class ProblemDeserializer extends StdDeserializer<Problem> {
 
         JsonParser resourcesJSON = root.get("resources").traverse(jp.getCodec());
         resourcesJSON.nextToken();
-        HashMap<Integer, Resource> resources = new HashMap<>();
+        HashMap<String, Resource> resources = new HashMap<>();
         for (Resource resource : ctxt.readValue(resourcesJSON, Resource[].class)) {
             resources.put(resource.getId(), resource);
             problem.getResourcesGraph().addNode(resource);
@@ -57,8 +57,8 @@ class ProblemDeserializer extends StdDeserializer<Problem> {
 
         JsonNode linksArray = root.get("links");
         for (final JsonNode link : linksArray) {
-            int sourceId = link.get("source").asInt();
-            int targetId = link.get("target").asInt();
+            String sourceId = link.get("source").asText();
+            String targetId = link.get("target").asText();
             double bandwidth = link.get("bandwidth").asDouble();
             double latency = link.get("latency").asDouble();
             boolean isBidirectional = link.get("bidirectional").asBoolean();

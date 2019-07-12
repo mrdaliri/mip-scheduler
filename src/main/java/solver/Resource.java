@@ -3,7 +3,7 @@ package solver;
 import java.util.HashMap;
 
 public class Resource {
-    private int id;
+    private String id;
     private String label;
     private int capacity;
     private Placement placement;
@@ -11,11 +11,11 @@ public class Resource {
 
     public Resource() { }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
