@@ -21,11 +21,12 @@ public class DeviceController {
     private SiteWhereService siteWhereService;
 
     @GetMapping("/integration/sitewhere/devices")
-    public Map<String, List<Device>> listDevices(@RequestParam String username, @RequestParam String password, @RequestParam String tenantName, @RequestParam String tenantToken) {
+    public Map<String, List<Device>> listDevices(@RequestParam String instance, @RequestParam String username, @RequestParam String password, @RequestParam String tenantToken, @RequestParam String tenantAuth) {
+        siteWhereService.setInstance(instance);
         siteWhereService.authenticate(username, password);
-        List<Device> allDevices = siteWhereService.listAllDevices(tenantName, tenantToken);
-        List<DeviceGroupElement> cloudElements = siteWhereService.listGroupElements(tenantName, tenantToken, "cloud_resources");
-        List<DeviceGroupElement> edgeElements = siteWhereService.listGroupElements(tenantName, tenantToken, "edge_resources");
+        List<Device> allDevices = siteWhereService.listAllDevices(tenantToken, tenantAuth);
+        List<DeviceGroupElement> cloudElements = siteWhereService.listGroupElements(tenantToken, tenantAuth, "cloud_resources");
+        List<DeviceGroupElement> edgeElements = siteWhereService.listGroupElements(tenantToken, tenantAuth, "edge_resources");
 
         Map<String, List<Device>> groups = new HashMap<>();
 

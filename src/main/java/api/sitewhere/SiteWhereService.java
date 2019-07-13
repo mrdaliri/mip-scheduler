@@ -16,12 +16,12 @@ import java.util.List;
 @Service
 public class SiteWhereService {
 
-    private static final String API_URL = "http://139.59.139.241:30746/sitewhere/";
+    private String instance;
     private final RestTemplate restTemplate;
     private String token;
 
-    private static String getURL(String path) {
-        return API_URL + path;
+    private String getURL(String path) {
+        return this.instance + "/sitewhere/" + path;
     }
 
     private HttpHeaders getHeaders(String tenantName, String tenantToken) {
@@ -40,25 +40,29 @@ public class SiteWhereService {
         HttpHeaders headers = new HttpHeaders();
         headers.setBasicAuth(username, password);
         HttpEntity<String> entity = new HttpEntity<String>("parameters", headers);
-        ResponseEntity<String> result = restTemplate.exchange(SiteWhereService.getURL("authapi/jwt"), HttpMethod.GET, entity, String.class);
+        ResponseEntity<String> result = restTemplate.exchange(getURL("authapi/jwt"), HttpMethod.GET, entity, String.class);
         this.token = result.getHeaders().get("X-Sitewhere-JWT").get(0);
     }
 
-    public List<Device> listAllDevices(String tenantName, String tenantToken) {
+    public List<Device> listAllDevices(String tenantToken, String tenantAuth) {
         ResponseEntity<SiteWhereAPIResponse<Device>> response = restTemplate.exchange(
-                SiteWhereService.getURL("api/devices"),
+                getURL("api/devices"),
             HttpMethod.GET,
-                new HttpEntity<String>("parameters", getHeaders(tenantName, tenantToken)),
+                new HttpEntity<String>("parameters", getHeaders(tenantToken, tenantAuth)),
             new ParameterizedTypeReference<SiteWhereAPIResponse<Device>>(){});
         return response.getBody().getResults();
     }
 
-    public List<DeviceGroupElement> listGroupElements(String tenantName, String tenantToken, String group) {
+    public List<DeviceGroupElement> listGroupElements(String tenantToken, String tenantAuth, String group) {
         ResponseEntity<SiteWhereAPIResponse<DeviceGroupElement>> response = restTemplate.exchange(
-                SiteWhereService.getURL(String.format("api/devicegroups/%s/elements", group)),
+                getURL(String.format("api/devicegroups/%s/elements", group)),
                 HttpMethod.GET,
-                new HttpEntity<String>("parameters", getHeaders(tenantName, tenantToken)),
+                new HttpEntity<String>("parameters", getHeaders(tenantToken, tenantAuth)),
                 new ParameterizedTypeReference<SiteWhereAPIResponse<DeviceGroupElement>>(){});
         return response.getBody().getResults();
+    }
+
+    public void setInstance(String instance) {
+        this.instance = instance;
     }
 }
