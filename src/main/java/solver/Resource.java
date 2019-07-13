@@ -3,20 +3,19 @@ package solver;
 import java.util.HashMap;
 
 public class Resource {
-    private int id;
+    private String id;
     private String label;
     private int capacity;
     private Placement placement;
-    private Type type;
     private HashMap<QueryType, Double> costs = new HashMap<>();
 
     public Resource() { }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -44,14 +43,6 @@ public class Resource {
         this.placement = placement;
     }
 
-    public Type getType() {
-        return type;
-    }
-
-    public void setType(Type type) {
-        this.type = type;
-    }
-
     public HashMap<QueryType, Double> getCosts() {
         return costs;
     }
@@ -66,6 +57,6 @@ public class Resource {
 
     @Override
     public String toString() {
-        return String.format("solver.Resource#%d (%s)", id, label);
+        return String.format("Resource#%d (%s)", id, label);
     }
 }

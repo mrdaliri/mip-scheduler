@@ -3,7 +3,7 @@ package solver;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Node {
-    private int id;
+    private String id;
     private String label;
     private int consumption;
     private Type type;
@@ -13,11 +13,11 @@ public class Node {
 
     public Node() { }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -55,6 +55,6 @@ public class Node {
 
     @Override
     public String toString() {
-        return String.format("solver.Node#%d (%s)", id, label);
+        return String.format("Node#%d (%s)", id, label);
     }
 }

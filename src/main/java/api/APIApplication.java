@@ -12,6 +12,6 @@ public class APIApplication {
 
 
 //    Presenting a Job Scheduling Solution for Optimization in IoT Platforms
-//    Mixed Integer Programming Resource Allocation: MIRPA
-//    Resource Allocation via Mixed Integer Programming: RAMIP
+//    Mixed Integer Programming Resource ResourceAllocation: MIRPA
+//    Resource ResourceAllocation via Mixed Integer Programming: RAMIP
 //    IPRA
